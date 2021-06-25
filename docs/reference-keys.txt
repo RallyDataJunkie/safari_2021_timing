@@ -250,6 +250,10 @@ tab:driver-rebased-gap-WRC-SS7-GRE-table
 tab:srt-WRC-SS7-GRE
 tab:isdd-t-WRC-SS7-GRE
 tab:spd-t-WRC-SS7-GRE
+tab:driver-rebased-gap-WRC-SS7-FOU-table
+tab:srt-WRC-SS7-FOU
+tab:isdd-t-WRC-SS7-FOU
+tab:spd-t-WRC-SS7-FOU
 rally-sparkline-summary
 off-the-pace-chart
 stage-pace
@@ -683,4 +687,9 @@ within-split-duration-deltas-51
 within-split-pace-deltas-51
 within-split-pace-map-51
 driver-report-ss7---fou
+rebased-split-times-52
+off-the-pace-chart-53
+within-split-duration-deltas-52
+within-split-pace-deltas-52
+within-split-pace-map-52
 driver-report-ss7---sol
