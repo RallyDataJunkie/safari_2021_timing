@@ -89,7 +89,7 @@ driver_rebased = rebase(full_durations_wide, driverCode,
 
 split_N_col_idx = which(colnames(driver_rebased) == 'split_N')[[1]]
 
-caption = paste0(stage_info_$code, ' split section delta — ', driverCode, ' - ', rally_name)
+caption = paste0(stage_info_$code, ' split section delta (s) — ', driverCode, ' - ', rally_name)
 driver_rebased[,c('code',split_names)] %>%
                   filter_at(vars(starts_with("split_")),
                                 any_vars(! is.na(.)))  %>%
@@ -112,7 +112,7 @@ driver_rebased = rebase(section_pace_wide, driverCode,
 
 split_N_col_idx = which(colnames(driver_rebased) == 'split_N')[[1]]
 
-caption = paste0(stage_info_$code, ' split section pace delta — ', driverCode, ' - ', rally_name)
+caption = paste0(stage_info_$code, ' split section pace delta (s/km) — ', driverCode, ' - ', rally_name)
 driver_rebased_split_wide = driver_rebased[,c('code',split_names)] %>%
                   filter_at(vars(starts_with("split_")),
                                 any_vars(! is.na(.)))  
