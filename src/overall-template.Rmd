@@ -338,21 +338,16 @@ g + labs(title = paste0("Off-the-pace chart for overall leader"),
 Stage pace charts rebased to overall leader.
 
 ```{r warning=FALSE}
+# Need ylim to make sure all the leaders pace comparisons
+# with lost time are in view
+
 cum_dist = max(pace_stage$cum_dist)
 g_pm = pace_map(pace_stage, label_size=2,
-                pace_label_offset=-0.04) + ylim(1.5, -1.5)
+                pace_label_offset=-0.04) #+ ylim(1.5, -1.5)
+
 
 # Add banner - TO DO  - this generates warnings... Need to tidy up
-g_pm + geom_rect(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
-              aes(xmin=0, xmax=max(cum_dist),
-                  ymin = -0.8,  ymax = -1.0,
-                  alpha=0), fill = 'black') +
-    geom_text(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
-              aes(x=(cum_dist + start_dist)/2, label=code),
-              y=0.9, color='yellow', size=3) +
-    geom_segment(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
-                 aes(x=cum_dist, xend=cum_dist,
-                    y=-0.8, yend=-1.0), color='yellow') +
+g_pm = g_pm  +
     theme(legend.position="none") + 
   labs(title = paste0("Pace chart across stages" ),
   subtitle = paste0("Rebased relative to overall leader (",overall_lead_code,"), ", rally_name),
@@ -361,6 +356,26 @@ g_pm + geom_rect(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
   caption = "Created by: RallyDataJunkie.com"
 
 ) 
+
+ypace_limits = layer_scales(g_pm)$y$get_limits()
+ypace_max = abs(ypace_limits[1])
+ypace_min = ifelse((abs(ypace_max) < 1.5), -1.5, -abs(ypace_max))
+
+g_pm + geom_rect(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
+              aes(xmin=0, xmax=max(cum_dist),
+                  ymin = ypace_min-0.2,  ymax = ypace_min-0.4,
+                  alpha=0), fill = 'black') +
+    geom_text(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
+              aes(x=(cum_dist + start_dist)/2, label=code),
+              y=abs(ypace_min-0.3), color='yellow', size=3) +
+    geom_segment(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
+                 aes(x=cum_dist, xend=cum_dist,
+                    y=ypace_min-0.2, yend=ypace_min-0.4), color='yellow') +
+    geom_segment(data=pace_stage[pace_stage$code_driver==overall_lead_code,],
+                 aes(x=cum_dist, xend=cum_dist,
+                    y=ypace_max, yend=ypace_min-0.4),
+                 linetype="dotted",
+                 color='lightgrey') + ylim(ypace_max, ypace_min-0.4)
 ```
 
 
