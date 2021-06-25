@@ -37,21 +37,23 @@ top10_stage_times = stage_times %>%
                              'entryId') %>%
                       # The merge may upset the row order
                       # so reset the order again
-                      arrange(position) %>%
-                      # TO DO  - arrange using na.last=TRUE ?
-                      # Improve column names by renaming them
-                      rename(Pos=position,
-                             Car = identifier,
-                             Code = code,
-                             `Time (s)` = TimeInS,
-                             Gap = gap, Diff = diff)
+                      arrange(position)
 
 # Optionally, re-rank by group
 if (use_group_rank) {
-  top10_stage_times$overall_stage_pos = top10_stage_times$Pos
-  top10_stage_times$Pos = rank(top10_stage_times$overall_stage_pos)
+  top10_stage_times$overall_stage_pos = top10_stage_times$position
+  top10_stage_times$position = rank(top10_stage_times$overall_stage_pos)
 }
 ```
+
+```{r message=FALSE, results='hide'}
+py_run_file("rules_stage.py")
+src = knit_expand("rule_template_stage.Rmd")
+knit_child(text=src,
+               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
+               quiet=TRUE)
+```
+
 
 ```{r group-stage-times-{{result_group}}-{{stage_code}}, cache=TRUE}
 group_stage_times = stage_times %>%
@@ -81,30 +83,6 @@ group_stage_times = stage_times %>%
                              Gap = gap, Diff = diff)
 ```
 
-
-```{r top10-stage-times-table-{{result_group}}-{{stage_code}}, cache=TRUE}
-stage_cols = c('stageId', 'number', 'name', 'distance', 'code')
-
-stage_info = stages %>%
-                select(all_of(stage_cols)) %>%
-                # Tidy up the stage name
-                mutate(name = str_replace(name, ' \\(Live TV\\)', ''))
-
-#large_diff = 2
-
-caption = paste0('Top 10, ', stage_info_$code,
-                 ', ', stage_info_$name, ' (',
-                 stage_info_$distance, 'km)')
-
-top10_stage_times %>% 
-  filter(!is.na(Gap)) %>%
-  select(-overall_stage_pos) %>%
-  formattable(list(Gap = color_bar2("#FA614B66"),
-                   Diff = color_tile("#DeF7E9","#71CA97"),
-                   entryId=FALSE), caption=caption)
-```
-
-
 ```{r test-stage-splits-{{stage_code}}, message=FALSE, echo=FALSE, error=FALSE, warning=FALSE, results='asis'}
 #omit_stage_splits=c("SS1")
 
@@ -121,6 +99,45 @@ if (!(stage_code %in% c()) && stage_splits_exist){ #omit_stage_splits)) {
 }
 
 ```
+
+```{r top10-stage-times-table-{{result_group}}-{{stage_code}}, cache=TRUE}
+stage_cols = c('stageId', 'number', 'name', 'distance', 'code')
+
+stage_info = stages %>%
+                select(all_of(stage_cols)) %>%
+                # Tidy up the stage name
+                mutate(name = str_replace(name, ' \\(Live TV\\)', ''))
+
+#large_diff = 2
+
+caption = paste0('Top 10, ', stage_info_$code,
+                 ', ', stage_info_$name, ' (',
+                 stage_info_$distance, 'km)')
+
+top10_stage_times = top10_stage_times %>%
+                      # TO DO  - arrange using na.last=TRUE ?
+                      # Improve column names by renaming them
+                      rename(Pos=position,
+                             Car = identifier,
+                             Code = code,
+                             `Time (s)` = TimeInS,
+                             Gap = gap, Diff = diff)
+
+top10_stage_times %>% 
+  filter(!is.na(Gap)) %>%
+  select(-overall_stage_pos) %>%
+  formattable(list(Gap = color_bar2("#FA614B66"),
+                   Diff = color_tile("#DeF7E9","#71CA97"),
+                   entryId=FALSE), caption=caption)
+```
+
+
+## Text report
+
+```{r results="asis"}
+cat(py$txt_out)
+```
+
 
 ```{r message=FALSE, echo=FALSE, error=FALSE, warning=FALSE, results='asis'}
 # Handle rebase split times for each driver

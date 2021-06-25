@@ -1,0 +1,21 @@
+
+```{r}
+map_stage_codes_col = function(df, stages){
+  df %>%
+    merge(stages %>% rename(stagecode = code) %>% select(c(stageId,stagecode)),
+          by='stageId')  %>%
+    select('stagecode', everything())
+}
+rule_multi_results = multi_overall_results %>% map_driver_names(cars) %>% map_stage_codes_col(stages) %>% arrange(stagecode, position)
+
+#rule_multi_results
+```
+```{python, results='hide'}
+pd_df = r.rule_multi_results
+#pd_df = r.top10_stage_times
+#pd_df.head()
+
+txts=[]
+pd_df.head().apply(rulesbyrow, ruleset='rule_multi_overall', axis=1)
+txt_out = '\n\n'.join(txts)
+```

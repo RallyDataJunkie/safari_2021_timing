@@ -60,6 +60,23 @@ if (use_group_rank) {
 }
 ```
 
+## Text report
+
+```{r message=FALSE, results='hide'}
+library(reticulate)
+
+py_run_file("rules_processor.py")
+py_run_file("rules_overall.py")
+
+src = knit_expand("rule_template_overall.Rmd")
+knit_child(text=src,
+               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
+               quiet=TRUE)
+```
+
+```{r results="asis"}
+cat(py$txt_out)
+```
 
 ```{r warning=FALSE, include=FALSE, echo=FALSE, message=FALSE}
 # TO DO - need to have a function that does WRC/class not overall top10
@@ -97,7 +114,7 @@ multi_stage_wide_pos = multi_stage_times %>%
 
 
 ```{r }
-# TO DO - colour an impovement green, a loss red
+# TO DO - colour an improvement green, a loss red
 out_table = multi_overall_wide_pos %>%
                               map_stage_codes(stage_list_codes) %>%
                               map_driver_names(cars) %>% 
@@ -154,7 +171,7 @@ overall_long_gap_top10 <- multi_overall_wide_gap_top10 %>%
 #spark_df(overall_long_gap_top10)
 ```
 
-```{r}
+```{r warnining=FALSE}
 # Gap to stage winner
 
 min2 = function(x, na.rm = TRUE) x - min(x, na.rm = na.rm)
@@ -183,7 +200,7 @@ multi_stage_long_gap = generate_spark_bar(multi_stage_wide_gap) %>%
 ```
 
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 # Stage position chart
 #top10_codes = multi_stage_wide_pos$code
 multi_overall_wide_pos_ = multi_overall_wide_pos  %>%
@@ -292,7 +309,9 @@ pace_stage = pace_wide_rebased %>%
 Simple summary charts of rally progress for each driver, ordered by latest overall ranking:
 
 ```{r}
-multi_overall_wide_gap_top10['code'] %>%
+# Don't display if only a single stage
+if (length(stage_list)>1) {
+  multi_overall_wide_gap_top10['code'] %>%
     inner_join(multi_overall_wide_pos_[,c('code','overall_poschart')], by = 'code') %>%
     inner_join(overall_long_gap_top10, by = 'code') %>%  
       inner_join(pos_gain_sparkline_top10[, c('code','pos_change_bar')], by = 'code') %>%
@@ -302,7 +321,7 @@ multi_overall_wide_gap_top10['code'] %>%
          "Stage Pos"= stage_poschart, "Stage Gap"=gap_to_stagewinner_bar,
          "Overall Pos Change"=pos_change_bar) %>%
   spark_df()
-
+} else cat('Not enough data for a meaningful table...')
 #TO DO - need to be able to pass in a caption to spark_df
 ```
 
@@ -312,7 +331,7 @@ multi_overall_wide_gap_top10['code'] %>%
 
 Overall time deltas at each stage relative to overall leader:
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 g = multi_overall_wide_gap_top10 %>%
         pivot_longer(!code, names_to = "Num", values_to = "time") %>%
         filter(abs(time)<=300 ) %>%

@@ -1,0 +1,9 @@
+```{python, results='hide'}
+pd_df = r.top10_stage_times
+#pd_df = r.top10_stage_times
+#pd_df.head()
+
+txts=[]
+pd_df.head().apply(rulesbyrow, ruleset='rule_multi_stage', axis=1)
+txt_out = '\n\n'.join(txts)
+```

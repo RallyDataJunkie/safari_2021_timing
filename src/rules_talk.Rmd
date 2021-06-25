@@ -1,10 +1,13 @@
 # NLG test
 
+**This is just a scratch script; code is also broken out into rules_processor.py and rules_overall.py and used in context of rule_template_overall.Rmd*
+
 ```{r}
 library(reticulate)
 library(knitr)
 
 source('_code/wrc-api.R')
+source('_code/wrc-wrangling.R')
 ```
 
 
@@ -73,6 +76,8 @@ def pickfirst_prob(l, p=0.5):
 ```
 
 ```{python}
+import json
+
 def rulesbyrow(row, ruleset):
     row = json.loads(json.dumps(row.to_dict()))
     post(ruleset,row)
@@ -176,7 +181,6 @@ tmpq
 ```
 
 ```{python}
-import json
 #This handles numpy types that ruleset json serialiser doesn't like
 tmp = json.loads(tmpq.iloc[0].to_json())
 tmp
