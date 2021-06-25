@@ -18,8 +18,10 @@ with ruleset('rule_multi_overall'):
         #In this case, record the Crew and Brand for the first placed crew
         c.s.first_code = c.m.code
         c.s.prev_code = c.m.code
+        
+        txts.append(f'At the end of stage {c.m.stage}:')
         #Python f-strings make it easy to generate text sentences that include data elements
-        txts.append(f'{c.m.code} was in first with a time of {c.m.stageTime}.')
+        txts.append(f'- {c.m.code} was {pickone_equally(["in first", "leading the rally", "at the head of the field", "in overall first", "in overall first position"])}') # with a time of {c.m.stageTime}.')
     
     #We can be a bit more creative in the other results
     @when_all(m.position>1)
@@ -32,11 +34,11 @@ with ruleset('rule_multi_overall'):
         first_opts = [c.s.first_code, 'the overall leader']
         #if c.m.Brand==c.s.first_brand:
         #    first_opts.append(f'the first placed {c.m.Brand}')
-        t = pickone_equally([f'with a time of {c.m.totalTime}'
-                             #"{} behind {}".format(str(c.m.diffFirstS), pickone_equally(first_opts))
-                             ],
-                           prefix=', ')
-        
+        #t = pickone_equally([f'with a time of {c.m.totalTime}'
+        #                     #"{} behind {}".format(str(c.m.diffFirstS), pickone_equally(first_opts))
+        #                     ],
+        #                   prefix=', ')
+        t2 = f' and {c.m.gap}s {pickone_equally(["behind "+c.s.first_code, "off the lead", "off the overall lead pace"])}' if c.s.first_code!=c.s.prev_code else ''
         #And add even more variation possibilities into the returned generated sentence
-        txts.append(f'{c.m.code} was in {nth}{sometimes(" position")}{t}, {c.m.diffPrev}s behind {c.s.prev_code}.')
+        txts.append(f'- {c.m.code} was in {nth}{sometimes(" position")}, {round(c.m.diff,1)}s behind {c.s.prev_code}{t2}')
         c.s.prev_code = c.m.code

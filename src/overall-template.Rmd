@@ -60,23 +60,6 @@ if (use_group_rank) {
 }
 ```
 
-## Text report
-
-```{r message=FALSE, results='hide'}
-library(reticulate)
-
-py_run_file("rules_processor.py")
-py_run_file("rules_overall.py")
-
-src = knit_expand("rule_template_overall.Rmd")
-knit_child(text=src,
-               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
-               quiet=TRUE)
-```
-
-```{r results="asis"}
-cat(py$txt_out)
-```
 
 ```{r warning=FALSE, include=FALSE, echo=FALSE, message=FALSE}
 # TO DO - need to have a function that does WRC/class not overall top10
@@ -388,11 +371,32 @@ The gap to the overall leader at the end of each stage, with table ordered by ov
 ```{r}
 #kable(multi_overall_wide_gap_top10)
 # Add min value abs to each column
-kable(multi_overall_wide_gap_top10 %>% mutate_at(2:ncol(multi_overall_wide_gap_top10), list(~ . + abs(min(., na.rm=TRUE)))), format = "html") %>%
+multi_overall_wide_gap_top10_view = multi_overall_wide_gap_top10 %>% mutate_at(2:ncol(multi_overall_wide_gap_top10), list(~ . + abs(min(., na.rm=TRUE))))
+kable(multi_overall_wide_gap_top10_view, format = "html") %>%
   kable_styling() %>%
   kableExtra::scroll_box(width = "100%")
 ```
 
+## Text report
+
+```{r message=FALSE, results='hide'}
+library(reticulate)
+
+py_run_file("rules_processor.py")
+py_run_file("rules_overall.py")
+
+last_stage_code = stage_codes[length(stage_codes)]
+```
+```{r message=FALSE, results='hide'}
+
+src = knit_expand("rule_template_overall.Rmd")
+knit_child(text=src,
+               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
+               quiet=TRUE)
+```
+```{r results="asis"}
+cat(py$txt_out)
+```
 
 ## Stage Wins Summary
 
@@ -497,7 +501,7 @@ kable(out_table, format = "html") %>%
 ```
 
 
-## Gap to Current Overall Leader at Each Stage End
+## Gap to the Driver in Overall Lead at Each Stage End
 
 The gap to current overall leader, `r overall_lead_code`, with table ordered by overall rally position at end of last recorded stage:
 

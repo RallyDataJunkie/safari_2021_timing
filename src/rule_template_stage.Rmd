@@ -1,9 +1,14 @@
-```{python, results='hide'}
+#```{python, results='hide'}
+```{python}
+from numpy import inf
+
 pd_df = r.top10_stage_times
 #pd_df = r.top10_stage_times
 #pd_df.head()
-
+#pd_df['overall_stage_pos'] # Possibly a str containing 'NA'?
+#pd_df.fillna(9999, inplace=True)
+pd_df.dropna(how='any', inplace=True)
 txts=[]
-pd_df.head().apply(rulesbyrow, ruleset='rule_multi_stage', axis=1)
+pd_df.apply(rulesbyrow, ruleset='rule_multi_stage', axis=1)
 txt_out = '\n\n'.join(txts)
 ```

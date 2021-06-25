@@ -54,6 +54,9 @@ knit_child(text=src,
                quiet=TRUE)
 ```
 
+```{r}
+#py$pd_df
+```
 
 ```{r group-stage-times-{{result_group}}-{{stage_code}}, cache=TRUE}
 group_stage_times = stage_times %>%
