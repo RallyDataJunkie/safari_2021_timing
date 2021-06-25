@@ -140,7 +140,7 @@ Rank on each split section:
 split_duration_ranks = get_split_rank(full_durations_wide, split_names)
 
 caption = paste0(stage_info_$code, ' split section rank')
-formattable(split_ranks, align='c',
+formattable(split_duration_ranks, align='c',
             list(area(col = 2:split_N_col_idx) ~ color_tile2(c("red",'white', "forestgreen")),
                  entryId=FALSE), caption=caption)
 ```
