@@ -131,6 +131,7 @@ top10_stage_times_out %>%
 
 
 ```{r}
+# multi_overall_lead_previous_long comes from overall-template.Rmd
 stage_reporter_view = multi_overall_lead_previous_long %>% 
          filter(stage==!!stage_code)  %>%
          merge(multi_overall_wide_gap_top10_view %>% 
@@ -142,12 +143,22 @@ stage_reporter_view = multi_overall_lead_previous_long %>%
          merge(multi_stage_win_truth %>% 
                 select(code, !!stage_code) %>%
                 rename(stage_win=!!stage_code), by='code') %>% 
-         rename(overall_pos=position, overall_gap=gap) %>%
+         rename(overall_pos=position,
+                overall_gap=gap) %>%
          merge(top10_stage_times, by='code') %>%
-         dplyr::arrange(position)
+         dplyr::arrange(overall_pos) %>% 
+         mutate(overall_diff=overall_gap-lag(overall_gap),
+                overall_chase=lead(overall_gap)-overall_gap) %>%
+         dplyr::arrange(position) %>%
+         mutate(chase=lead(gap)-gap,
+                chase_code=lead(code), lead_code=lag(code)) %>%
+         select(code, identifier, entryId, 	stage,	overall_pos,	prev_position, retained_lead,	lost_lead,	gained_lead,	overall_position_delta,	 overall_chase_code, overall_lead_code, overall_gap, overall_diff,	overall_chase, overall_stage_pos,	stage_position,	stage_win,	position,	TimeInS,	gap,	diff,	chase, chase_code, lead_code)
 
-stage_reporter_view
+kable(stage_reporter_view, format = "html") %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%")
 ```
+
 
 ```{r message=FALSE, results='hide'}
 py_run_file("rules_stage.py")
@@ -161,10 +172,15 @@ knit_child(text=src,
 #top10_stage_times
 ```
 
+__Stage report for `r stage_code`:__
+
 ```{r results="asis"}
 cat(py$txt_out)
 ```
 
+```{r}
+#py$stage_txts#[[driverCode]]
+```
 
 ```{r message=FALSE, echo=FALSE, error=FALSE, warning=FALSE, results='asis'}
 # Handle rebase split times for each driver
@@ -180,13 +196,15 @@ if (stage_splits_exist) {
     # Remove accents for use in chunk labels/image names
     driverCodeClean = stringi::stri_trans_general(driverCode, "Latin-ASCII")
     
-    # This section is broken
     template = "driver_stage_template.Rmd"
     #template="empty_template.Rmd"
     src = knit_expand(template)
     cat(knit_child(text=src,
                      options = list(echo=FALSE, warning=FALSE, error=FALSE),
                      quiet=TRUE))
+    
+
+    
     # driver_blank set in driver_stage_template.Rmd
     if (!(stage_code %in% c()) && !(driver_blank)){ #omit_stage_splits)) {
       template="driver_template.Rmd"

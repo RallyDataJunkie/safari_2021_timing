@@ -13,6 +13,8 @@ pd_df = r.overall_reporter_view
 pd_df.dropna(how='any', subset=['overall_pos', 'stage_position', 'overall_gap'], inplace=True)
 # Generates cols: code, stage, gap
 txts=[]
+overall_txts = {}
+
 pd_df.head().apply(rulesbyrow, ruleset='rule_multi_overall', axis=1)
 txt_out = '\n\n'.join(txts)
 ```

@@ -1,5 +1,10 @@
 ## Driver Report, `r stage_code`  - `r driverCode`
 
+```{r results='asis'}
+if (driverCode %in% names(py$stage_txts))
+  cat(paste('> ',py$stage_txts[[driverCode]]))
+```
+
 ```{r driver-rebased-gap-{{result_group}}-{{stage_code}}-{{driverCodeClean}}, echo=FALSE, message=FALSE, error=FALSE, results='asis', cache=TRUE}
 #driverCode="KAT"
 driver_rebased_gap = group_stage_times %>%
@@ -17,7 +22,7 @@ driver_rebased_gap = group_stage_times %>%
 driver_blank = driver_rebased_gap %>% filter(!is.na(Gap)) %>% plyr::empty()
 ```
 
-
+  
 `r ifelse(driver_blank, "No stage", "Stage")` report for `r driverCode`.
 
 ```{r driver-rebased-gap-{{result_group}}-{{stage_code}}-{{driverCodeClean}}-table, cache=TRUE}

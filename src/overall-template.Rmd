@@ -387,6 +387,7 @@ The gap to the overall leader at the end of each stage, with table ordered by ov
 #kable(multi_overall_wide_gap_top10)
 # Add min value abs to each column
 multi_overall_wide_gap_top10_view = multi_overall_wide_gap_top10 %>% mutate_at(2:ncol(multi_overall_wide_gap_top10), list(~ . + abs(min(., na.rm=TRUE))))
+
 kable(multi_overall_wide_gap_top10_view, format = "html") %>%
   kable_styling() %>%
   kableExtra::scroll_box(width = "100%")
@@ -542,7 +543,10 @@ multi_overall_lead_previous_long = out_table %>% pivot_longer(cols = -c(code), n
          gained_lead=isLead(position) & !isLead(prev_position))
 
 multi_overall_lead_previous_long = multi_overall_lead_previous_long %>%
-                mutate(overall_position_delta=pos_delta(position, prev_position))
+                mutate(overall_position_delta=pos_delta(position, prev_position))  %>%
+ group_by(stage) %>%
+ mutate(overall_chase_code = lead(code, order_by=position),
+        overall_lead_code = lag(code, order_by=position))
 ```
 
 Overall position in previous stage:
@@ -619,11 +623,15 @@ overall_reporter_view = multi_overall_lead_previous_long %>%
                 rename(stage_win=!!last_stage_code), by='code') %>% 
          rename(overall_pos = position) %>%
          dplyr::arrange(overall_pos) %>%
-         mutate(overall_diff=overall_gap-lag(overall_gap))
+         mutate(overall_diff=overall_gap-lag(overall_gap),
+                overall_chase=lead(overall_gap)-overall_gap)
 
 # TO DO - it would be useful to have the gap/diff change from each stage 
 # Also, whether the person ahead or behind is in the same position
-overall_reporter_view
+
+kable(overall_reporter_view, format = "html") %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%")
 ```
 ```{r message=FALSE, results='hide'}
 src = knit_expand("rule_template_overall.Rmd")
@@ -631,6 +639,14 @@ knit_child(text=src,
                options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
                quiet=TRUE)
 ```
+
+__Overall rally report at end of `r last_stage_code`:__
+
 ```{r results="asis"}
 cat(py$txt_out)
+```
+
+```{r results="asis"}
+#if ("NEU" %in% names(py$overall_txts))
+#  cat(paste('NEU: ',py$overall_txts[["NEU"]]))
 ```
