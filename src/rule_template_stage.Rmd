@@ -2,7 +2,8 @@
 ```{python}
 from numpy import inf
 
-pd_df = r.top10_stage_times
+#pd_df = r.top10_stage_times
+pd_df = r.stage_reporter_view
 #pd_df = r.top10_stage_times
 #pd_df.head()
 #pd_df['overall_stage_pos'] # Possibly a str containing 'NA'?

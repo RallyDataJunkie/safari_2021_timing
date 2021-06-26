@@ -142,7 +142,8 @@ stage_reporter_view = multi_overall_lead_previous_long %>%
          merge(multi_stage_win_truth %>% 
                 select(code, !!stage_code) %>%
                 rename(stage_win=!!stage_code), by='code') %>% 
-         rename(overall_position=position, position=stage_position) %>% 
+         rename(overall_pos=position, overall_gap=gap) %>%
+         merge(top10_stage_times, by='code') %>%
          dplyr::arrange(position)
 
 stage_reporter_view
@@ -157,7 +158,7 @@ knit_child(text=src,
 ```
 
 ```{r}
-top10_stage_times
+#top10_stage_times
 ```
 
 ```{r results="asis"}

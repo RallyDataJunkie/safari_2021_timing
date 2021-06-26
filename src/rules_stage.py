@@ -14,7 +14,7 @@ from pandas import isnull
 with ruleset('rule_multi_stage'):
   
     #Display something about the crew in first place
-    @when_all(m.position==1)
+    @when_all(m.overall_stage_pos==1)
     def whos_in_first(c):
         """Generate a sentence to report on the first placed vehicle."""
         #We can add additional state, accessible from other rules
@@ -56,12 +56,12 @@ with ruleset('rule_multi_stage'):
         txts.append(f'{c.m.code} {pickone_equally(["was in", "took"])} {nth}{pickfirst_prob([""," place"," position"])}{t}{t3}.')
         c.s.prev_code = c.m.code
 
-    @when_all((m.position>1) & (m.diff>60) & (m.diff<9999))
+    @when_all((m.overall_stage_pos>1) & (m.diff>60) & (m.diff<9999))
     def whos_where_bigdiff(c):
         """Generate a sentence to describe the position of each other placed vehicle."""
         
         #Use the inflect package to natural language textify position numbers...
-        nth = p.number_to_words(p.ordinal(int(c.m.position)))
+        nth = p.number_to_words(p.ordinal(int(c.m.overall_stage_pos)))
         #Use various probabalistic text generators to make a comment for each other result
         first_opts = [c.s.first_code, 'the stage winner', f'stage winner {c.s.first_code}']
         first_text = "{}s behind {}".format(str(round(c.m.gap,1)), pickone_equally(first_opts))

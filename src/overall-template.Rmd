@@ -523,7 +523,14 @@ Overall lead truth (based on gap to leader of 0s to capture joint stage times at
 ```{r}
 #ifelse(is.na(x), FALSE, x)
 isLead = function(x) ifelse(is.na(x), FALSE, x==1)
-
+pos_delta = function(curr, prev) {
+  if (!is.na(curr) & !is.na(prev))
+    posdelta_val = prev-curr #Positive is improvement, negative is loss 
+  else
+    posdelta_val = NA
+  
+  posdelta_val
+}
 out_table %>% mutate(across(stage_codes, isLead))
 ```
 
@@ -536,7 +543,8 @@ multi_overall_lead_previous_long = out_table %>% pivot_longer(cols = -c(code), n
   mutate(prev_position = lag(position, order_by=code),
          retained_lead=isLead(position) & isLead(prev_position),
          lost_lead=!isLead(position) & isLead(prev_position),
-         gained_lead=isLead(position) & !isLead(prev_position))
+         gained_lead=isLead(position) & !isLead(prev_position),
+         overall_delta=pos_delta(position, prev_position))
 ```
 
 Overall position in previous stage:
@@ -576,6 +584,7 @@ multi_overall_lead_gained_wide = multi_overall_lead_previous_long %>%
 
 multi_overall_lead_gained_wide
 ```
+
 
 ## Gap to the Driver in Overall Lead at Each Stage End
 
