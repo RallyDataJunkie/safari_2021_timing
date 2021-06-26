@@ -18,7 +18,7 @@ driver_rebased = rebase(full_splits_wide, driverCode,
 
 split_N_col_idx = which(colnames(driver_rebased) == 'split_N')[[1]]
 
-caption = paste0(stage_info_$code, ' split delta — ', driverCode, ' — ', rally_name)
+caption = paste0(stage_info_$code, ' split delta (s) — ', driverCode, ' — ', rally_name)
 #driver_rebased
 ```
 
