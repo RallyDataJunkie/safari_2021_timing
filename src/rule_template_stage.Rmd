@@ -1,4 +1,4 @@
-```{python txt-{{stage_code}}, cache=TRUE }
+```{python txt-stage-report-{{stage_code}}, cache=TRUE }
 #, cache=TRUE
 from numpy import inf
 

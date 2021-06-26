@@ -3,6 +3,8 @@
 from durable.lang import *
 from durable.lang import _main_host
 
+from pandas import isnull
+
 txts = []
 
 if _main_host is not None:
@@ -37,7 +39,7 @@ with ruleset('rule_multi_overall'):
         txts.append(f'- {c.m.code}{stage_win} {lead_typ}') # with a time of {c.m.stageTime}.')
         
     #We can be a bit more creative in the other results
-    @when_all(m.overall_pos>1)
+    @when_all(m.overall_pos > 1)
     def whos_where(c):
         """Generate a sentence to describe the position of each other placed vehicle."""
         
@@ -66,5 +68,5 @@ with ruleset('rule_multi_overall'):
         #                   prefix=', ')
         t2 = f' and {c.m.overall_gap}s {pickone_equally(["behind "+c.s.first_code, "off the lead", "off the overall lead pace"])}' if c.s.first_code!=c.s.prev_code else ''
         #And add even more variation possibilities into the returned generated sentence
-        txts.append(f'- {c.m.code}{stage_win} was in {nth}{sometimes(" position")} overall{lost_lead}{pos_change}, {round(c.m.diff,1)}s behind {c.s.prev_code}{t2}')
+        txts.append(f'- {c.m.code}{stage_win} was in {nth}{sometimes(" position")} overall{lost_lead}{pos_change}, {round(c.m.overall_diff,1)}s behind {c.s.prev_code}{t2}')
         c.s.prev_code = c.m.code
