@@ -51,6 +51,13 @@ with ruleset('rule_multi_overall'):
         stage_pos = p.number_to_words(p.ordinal(int(c.m.stage_position)))
         stage_win = ', with the stage win,' if c.m.stage_win else f', {sometimes("in ")}{stage_pos} on stage,'
         
+        
+        if not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
+            overall_pos = p.number_to_words(p.ordinal(int(c.m.overall_pos)))
+            pos_change = f' moving up {p.number_to_words(int(c.m.overall_position_delta))} place(s) to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropping {p.number_to_words(-int(c.m.overall_position_delta))} place(s) to {overall_pos} overall'
+        else:
+            pos_change=''
+            
         #if c.m.Brand==c.s.first_brand:
         #    first_opts.append(f'the first placed {c.m.Brand}')
         #t = pickone_equally([f'with a time of {c.m.totalTime}'
@@ -59,5 +66,5 @@ with ruleset('rule_multi_overall'):
         #                   prefix=', ')
         t2 = f' and {c.m.overall_gap}s {pickone_equally(["behind "+c.s.first_code, "off the lead", "off the overall lead pace"])}' if c.s.first_code!=c.s.prev_code else ''
         #And add even more variation possibilities into the returned generated sentence
-        txts.append(f'- {c.m.code}{stage_win} was in {nth}{sometimes(" position")} overall{lost_lead}, {round(c.m.diff,1)}s behind {c.s.prev_code}{t2}')
+        txts.append(f'- {c.m.code}{stage_win} was in {nth}{sometimes(" position")} overall{lost_lead}{pos_change}, {round(c.m.diff,1)}s behind {c.s.prev_code}{t2}')
         c.s.prev_code = c.m.code

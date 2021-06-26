@@ -524,12 +524,8 @@ Overall lead truth (based on gap to leader of 0s to capture joint stage times at
 #ifelse(is.na(x), FALSE, x)
 isLead = function(x) ifelse(is.na(x), FALSE, x==1)
 pos_delta = function(curr, prev) {
-  if (!is.na(curr) & !is.na(prev))
-    posdelta_val = prev-curr #Positive is improvement, negative is loss 
-  else
-    posdelta_val = NA
-  
-  posdelta_val
+  #Positive is improvement, negative is loss 
+  prev-curr
 }
 out_table %>% mutate(across(stage_codes, isLead))
 ```
@@ -543,8 +539,10 @@ multi_overall_lead_previous_long = out_table %>% pivot_longer(cols = -c(code), n
   mutate(prev_position = lag(position, order_by=code),
          retained_lead=isLead(position) & isLead(prev_position),
          lost_lead=!isLead(position) & isLead(prev_position),
-         gained_lead=isLead(position) & !isLead(prev_position),
-         overall_delta=pos_delta(position, prev_position))
+         gained_lead=isLead(position) & !isLead(prev_position))
+
+multi_overall_lead_previous_long = multi_overall_lead_previous_long %>%
+                mutate(overall_position_delta=pos_delta(position, prev_position))
 ```
 
 Overall position in previous stage:
@@ -622,6 +620,8 @@ overall_reporter_view = multi_overall_lead_previous_long %>%
          rename(overall_pos = position) %>%
          dplyr::arrange(overall_pos)
 
+# TO DO - it would be useful to have the gap/diff change from each stage 
+# Also, whether the person ahead or behind is in the same position
 overall_reporter_view
 ```
 ```{r message=FALSE, results='hide'}
