@@ -43,3 +43,14 @@ For a guide to the code used to generate the stage reports, see [*Visualising WR
 See also [*Visualising WRC Rally Stages*](https://rallydatajunkie.com/visualising-rally-stages/).
 
 *This report is unofficial and is not associated in any way with the Fédération Internationale de l’Automobile (FIA) or WRC Promoter GmbH.*
+
+## Who This Review Is For {-}
+
+The RallyDataJunkie project, such as it is, is a personal exploration of various ways of representing and visualising rally related stage, timing and results data.
+
+There are several potential audiences:
+
+- rally fans, looking for summaries of rally events;
+- teams and crews, looking for viariously arranged summaries to check and compare performances;
+- commentators and journnalists, looking for variously arranged summaries and overviews as a tool for confirming or identifying storypoints;
+- data folk, looking for various ways of representing various route, timing or results data.
