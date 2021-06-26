@@ -618,7 +618,8 @@ overall_reporter_view = multi_overall_lead_previous_long %>%
                 select(code, !!last_stage_code) %>%
                 rename(stage_win=!!last_stage_code), by='code') %>% 
          rename(overall_pos = position) %>%
-         dplyr::arrange(overall_pos)
+         dplyr::arrange(overall_pos) %>%
+         mutate(overall_diff=overall_gap-lag(overall_gap))
 
 # TO DO - it would be useful to have the gap/diff change from each stage 
 # Also, whether the person ahead or behind is in the same position
@@ -633,4 +634,3 @@ knit_child(text=src,
 ```{r results="asis"}
 cat(py$txt_out)
 ```
-
