@@ -46,14 +46,6 @@ if (use_group_rank) {
 }
 ```
 
-```{r message=FALSE, results='hide'}
-py_run_file("rules_stage.py")
-src = knit_expand("rule_template_stage.Rmd")
-knit_child(text=src,
-               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
-               quiet=TRUE)
-```
-
 ```{r}
 #py$pd_df
 ```
@@ -117,7 +109,7 @@ caption = paste0('Top 10, ', stage_info_$code,
                  ', ', stage_info_$name, ' (',
                  stage_info_$distance, 'km)')
 
-top10_stage_times = top10_stage_times %>%
+top10_stage_times_out = top10_stage_times %>%
                       # TO DO  - arrange using na.last=TRUE ?
                       # Improve column names by renaming them
                       rename(Pos=position,
@@ -126,7 +118,7 @@ top10_stage_times = top10_stage_times %>%
                              `Time (s)` = TimeInS,
                              Gap = gap, Diff = diff)
 
-top10_stage_times %>% 
+top10_stage_times_out %>% 
   filter(!is.na(Gap)) %>%
   select(-overall_stage_pos) %>%
   formattable(list(Gap = color_bar2("#FA614B66"),
@@ -136,6 +128,37 @@ top10_stage_times %>%
 
 
 ## Text report
+
+
+```{r}
+stage_reporter_view = multi_overall_lead_previous_long %>% 
+         filter(stage==!!stage_code)  %>%
+         merge(multi_overall_wide_gap_top10_view %>% 
+                select(code, !!stage_code) %>%
+                rename(gap=!!stage_code), by='code')  %>%
+         merge(multi_stage_wide_pos %>% 
+                select(code, !!stage_code) %>%
+                rename(stage_position=!!stage_code), by='code')  %>%
+         merge(multi_stage_win_truth %>% 
+                select(code, !!stage_code) %>%
+                rename(stage_win=!!stage_code), by='code') %>% 
+         rename(overall_position=position, position=stage_position) %>% 
+         dplyr::arrange(position)
+
+stage_reporter_view
+```
+
+```{r message=FALSE, results='hide'}
+py_run_file("rules_stage.py")
+src = knit_expand("rule_template_stage.Rmd")
+knit_child(text=src,
+               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
+               quiet=TRUE)
+```
+
+```{r}
+top10_stage_times
+```
 
 ```{r results="asis"}
 cat(py$txt_out)

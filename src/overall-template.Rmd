@@ -392,26 +392,6 @@ kable(multi_overall_wide_gap_top10_view, format = "html") %>%
   kableExtra::scroll_box(width = "100%")
 ```
 
-## Text report
-
-```{r message=FALSE, results='hide'}
-library(reticulate)
-
-py_run_file("rules_processor.py")
-py_run_file("rules_overall.py")
-
-last_stage_code = stage_codes[length(stage_codes)]
-```
-```{r message=FALSE, results='hide'}
-
-src = knit_expand("rule_template_overall.Rmd")
-knit_child(text=src,
-               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
-               quiet=TRUE)
-```
-```{r results="asis"}
-cat(py$txt_out)
-```
 
 ## Stage Wins Summary
 
@@ -512,8 +492,12 @@ Originally developed to support the automated text summary production, the *stag
 #ifelse(is.na(x), FALSE, x)
 isStageWin = function(x) ifelse(is.na(x), FALSE, x==0)
 
-multi_stage_win_gap_ordered %>% mutate(across(stage_codes, isStageWin))
+multi_stage_win_truth = multi_stage_win_gap_ordered %>%
+                          mutate(across(stage_codes, isStageWin))
+
+multi_stage_win_truth
 ```
+
 ## Overall Position
 
 Evolution of overall position:
@@ -545,44 +529,52 @@ out_table %>% mutate(across(stage_codes, isLead))
 
 
 ```{r}
+last_stage_code = stage_codes[length(stage_codes)]
+
 multi_overall_lead_previous_long = out_table %>% pivot_longer(cols = -c(code), names_to = "stage", values_to = "position")  %>%
   group_by(code) %>%
   mutate(prev_position = lag(position, order_by=code),
          retained_lead=isLead(position) & isLead(prev_position),
          lost_lead=!isLead(position) & isLead(prev_position),
-         gained_lead=isLead(position) & !isLead(prev_position) )
+         gained_lead=isLead(position) & !isLead(prev_position))
 ```
 
 Overall position in previous stage:
 
 ```{r}
-multi_overall_lead_previous_long %>%
+multi_overall_lead_previous_wide = multi_overall_lead_previous_long %>%
   pivot_wider(id_cols=c(code), names_from=stage, values_from=prev_position)
+multi_overall_lead_previous_wide
 ```
 
 Retained overall lead:
 
 ```{r}
-multi_overall_lead_previous_long %>%
+multi_overall_lead_retained_wide = multi_overall_lead_previous_long %>%
   pivot_wider(id_cols=c(code), names_from=stage,
               values_from=retained_lead)
-  
+
+multi_overall_lead_retained_wide
 ```
 
 Lost overall lead:
 
 ```{r}
-multi_overall_lead_previous_long %>%
+multi_overall_lead_lost_wide = multi_overall_lead_previous_long %>%
   pivot_wider(id_cols=c(code), names_from=stage,
               values_from=lost_lead)
+
+multi_overall_lead_lost_wide
 ```
 
 Gained lead:
 
 ```{r}
-multi_overall_lead_previous_long %>%
+multi_overall_lead_gained_wide = multi_overall_lead_previous_long %>%
   pivot_wider(id_cols=c(code), names_from=stage,
               values_from=gained_lead)
+
+multi_overall_lead_gained_wide
 ```
 
 ## Gap to the Driver in Overall Lead at Each Stage End
@@ -596,4 +588,40 @@ kable(multi_overall_wide_gap_top10, format = "html") %>%
   kableExtra::scroll_box(width = "100%")
 ```
 
+## Text report
+
+```{r message=FALSE, results='hide'}
+library(reticulate)
+
+py_run_file("rules_processor.py")
+py_run_file("rules_overall.py")
+
+```
+
+```{r}
+overall_reporter_view = multi_overall_lead_previous_long %>% 
+         filter(stage==!!last_stage_code)  %>%
+         merge(multi_overall_wide_gap_top10_view %>% 
+                select(code, !!last_stage_code) %>%
+                rename(overall_gap=!!last_stage_code), by='code')  %>%
+         merge(multi_stage_wide_pos %>% 
+                select(code, !!last_stage_code) %>%
+                rename(stage_position=!!last_stage_code), by='code')  %>%
+         merge(multi_stage_win_truth %>% 
+                select(code, !!last_stage_code) %>%
+                rename(stage_win=!!last_stage_code), by='code') %>% 
+         rename(overall_pos = position) %>%
+         dplyr::arrange(overall_pos)
+
+overall_reporter_view
+```
+```{r message=FALSE, results='hide'}
+src = knit_expand("rule_template_overall.Rmd")
+knit_child(text=src,
+               options = list(echo=FALSE,results='hide', warning=FALSE, error=FALSE),
+               quiet=TRUE)
+```
+```{r results="asis"}
+cat(py$txt_out)
+```
 

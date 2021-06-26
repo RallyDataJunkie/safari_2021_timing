@@ -12,7 +12,7 @@ from numpy import inf
 from pandas import isnull
 
 with ruleset('rule_multi_stage'):
-    
+  
     #Display something about the crew in first place
     @when_all(m.position==1)
     def whos_in_first(c):
@@ -22,7 +22,7 @@ with ruleset('rule_multi_stage'):
         c.s.first_code = c.m.code
         c.s.prev_code = c.m.code
         #Python f-strings make it easy to generate text sentences that include data elements
-        txts.append(f'{c.m.code} {pickone_equally(["was in first", "took the stage","recorded the stage", "took the stage win"])} {pickone_equally(["with", "in", "recording", "taking", "marking", "making"])} a time of {c.m.TimeInS}s.')
+        txts.append(f'{c.m.code} {pickone_equally(["was in first", "took the stage", "recorded the stage win", "took the stage win"])} {pickone_equally(["with", "in", "recording", "taking", "marking", "making"])} a time of {c.m.TimeInS}s.')
     
     #We can be a bit more creative in the other results
     @when_all((m.position>1) & (m.diff<=60))
@@ -44,7 +44,7 @@ with ruleset('rule_multi_stage'):
           t3 = f' {pickone_equally(["recording the same time as", "with the same time as", "matching the time of"])}  {c.s.prev_code}'
         elif c.m.diff<1:
           t3 = pickone_equally([f' {pickone_equally(["and just", ", just", ", only"])} {round(c.m.diff,1)}s {pickone_equally(["behind", "further behind", "further back behind"])} {c.s.prev_code}',
-                                f'battling hard with {c.s.prev_code} and just {round(c.m.diff,1)}s {pickone_equally(["further behind", "further back"])}'])
+                                f', battling hard with {c.s.prev_code} and just {round(c.m.diff,1)}s {pickone_equally(["further behind", "further back"])}'])
         else:
           desc_opts.append(f'{round(c.m.diff,1)}s {pickone_equally(["behind", "further back behind"])} {c.s.prev_code}')
           t3=''
