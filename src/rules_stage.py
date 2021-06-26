@@ -22,8 +22,11 @@ with ruleset('rule_multi_stage'):
         #In this case, record the Crew and Brand for the first placed crew
         c.s.first_code = c.m.code
         c.s.prev_code = c.m.code
+        
+        abs_int_overall_pos = abs(int(c.m.overall_position_delta))
+        
         if c.m.gained_lead and not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
-            lead_typ = f" picked up {p.number_to_words(int(c.m.overall_position_delta))} place(s) to " if c.m.overall_position_delta else ''
+            lead_typ = f" picked up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural('place',abs_int_overall_pos)} to " if c.m.overall_position_delta else ''
             lead_typ = lead_typ + pickone_equally(['gain','take'])+" the overall lead" + sometimes("of the rally", prefix=' ')
         elif c.m.gained_lead:
             lead_typ = " took the overall lead"+ sometimes("of the rally", prefix=' ')
@@ -31,7 +34,7 @@ with ruleset('rule_multi_stage'):
             lead_typ = pickone_equally([f" retained{sometimes('the', prefix=' ')} overall lead", " kept hold of the overall lead"]) + sometimes("of the rally", prefix=' ')
         elif not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
             overall_pos = p.number_to_words(p.ordinal(int(c.m.overall_pos)))
-            lead_typ = f' moved up {p.number_to_words(int(c.m.overall_position_delta))} place(s) to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} place(s) to {overall_pos} overall'
+            lead_typ = f' moved up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall'
         else:
             lead_typ=''
             
@@ -45,6 +48,8 @@ with ruleset('rule_multi_stage'):
     @when_all((m.overall_stage_pos>1) & (m.diff<=60))
     def whos_where(c):
         """Generate a sentence to describe the position of each other placed vehicle."""
+        
+        abs_int_overall_pos = abs(int(c.m.overall_position_delta))
         
         #Use the inflect package to natural language textify position numbers...
         nth = p.number_to_words(p.ordinal(int(c.m.overall_stage_pos)))
@@ -72,22 +77,22 @@ with ruleset('rule_multi_stage'):
                            prefix=', ')
         
         if c.m.gained_lead and not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
-            lead_typ = f" and picked up {p.number_to_words(int(c.m.overall_position_delta))} place(s)"+ pickone_equally([f" to gain{sometimes('the', prefix=' ')} overall lead ", f" took{sometimes('the', prefix=' ')} overall lead"]) + sometimes("of the rally", prefix=' ')
+            lead_typ = f" and picked up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural('place',abs_int_overall_pos)}"+ pickone_equally([f" to gain{sometimes('the', prefix=' ')} overall lead ", f" took{sometimes('the', prefix=' ')} overall lead"]) + sometimes("of the rally", prefix=' ')
         elif c.m.gained_lead:
             lead_typ = " and took{sometimes('the', prefix=' ')} overall lead"+ sometimes("of the rally", prefix=' ')
         elif c.m.retained_lead:
             lead_typ = pickone_equally([f" and retained{sometimes('the', prefix=' ')} overall lead", " kept hold of the overall lead"]) + sometimes("of the rally", prefix=' ')
         elif c.m.lost_lead:
-            lead_typ = f" and dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} place(s)" +f" to lose the overall lead, falling back to {p.number_to_words(p.ordinal(int(c.m.overall_pos)))} overall"
+            lead_typ = f" and dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} {p.plural('place',abs_int_overall_pos)}" +f" to lose the overall lead, falling back to {p.number_to_words(p.ordinal(int(c.m.overall_pos)))} overall"
         elif not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
             overall_pos = p.number_to_words(p.ordinal(int(c.m.overall_pos)))
-            lead_typ = f' and moved up {p.number_to_words(int(c.m.overall_position_delta))} place(s) to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} place(s) to {overall_pos} overall'
+            lead_typ = f' and moved up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall'
         else:
             lead_typ=''
           
         stage_pos = f'{pickone_equally(["was in", "took"])} {nth}{pickfirst_prob([""," place"," position"])} on stage'
         #And add even more variation possibilities into the returned generated sentence
-        txt=f'{c.m.code} {stage_pos} {lead_typ}{t}{t3}.'
+        txt=f'{c.m.code} {stage_pos}{t} {lead_typ}{t3}.'
         txt=txt.replace(' ,',',').replace(',,',',')
         txts.append(txt)
         stage_txts[c.m.code] = txt
@@ -96,6 +101,8 @@ with ruleset('rule_multi_stage'):
     @when_all((m.overall_stage_pos>1) & (m.diff>60) & (m.diff<9999))
     def whos_where_bigdiff(c):
         """Generate a sentence to describe the position of each other placed vehicle."""
+        
+        abs_int_overall_pos = abs(int(c.m.overall_position_delta))
         
         #Use the inflect package to natural language textify position numbers...
         nth = p.number_to_words(p.ordinal(int(c.m.overall_stage_pos)))
@@ -112,16 +119,16 @@ with ruleset('rule_multi_stage'):
         t2 = f", {pickone_equally(['well back on', 'significantly further behind' ])} {c.s.prev_code}, who was {round(c.m.diff,1)}s {pickone_equally(['faster','quicker'])}"
         
         if c.m.gained_lead and not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
-            lead_typ = f" and picked up {p.number_to_words(int(c.m.overall_position_delta))} place(s)"+ pickone_equally([f" to gain{sometimes('the', prefix=' ')} overall lead ", f" took{sometimes('the', prefix=' ')} overall lead"]) + sometimes("of the rally", prefix=' ')
+            lead_typ = f" and picked up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural('place',abs_int_overall_pos)}"+ pickone_equally([f" to gain{sometimes('the', prefix=' ')} overall lead ", f" took{sometimes('the', prefix=' ')} overall lead"]) + sometimes("of the rally", prefix=' ')
         elif c.m.gained_lead:
             lead_typ = " and took{sometimes('the', prefix=' ')} overall lead"+ sometimes("of the rally", prefix=' ')
         elif c.m.retained_lead: 
             lead_typ = pickone_equally([f" and retained{sometimes('the', prefix=' ')} overall lead", " kept hold of the overall lead"]) + sometimes("of the rally", prefix=' ')
         elif c.m.lost_lead:
-            lead_typ = f" and dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} place(s)"+f" to lose the overall lead, falling back to {p.number_to_words(p.ordinal(int(c.m.overall_pos)))} overall"
+            lead_typ =  f" lost the overall lead, dropping {p.number_to_words(int(abs(c.m.overall_position_delta)))} {p.plural('place',abs_int_overall_pos)} and falling back to {p.number_to_words(p.ordinal(int(c.m.overall_pos)))} overall"
         elif not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
             overall_pos = p.number_to_words(p.ordinal(int(c.m.overall_pos)))
-            lead_typ = f' and moved up {p.number_to_words(int(c.m.overall_position_delta))} place(s) to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} place(s) to {overall_pos} overall'
+            lead_typ = f' and moved up {p.number_to_words(int(c.m.overall_position_delta))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' dropped {p.number_to_words(int(abs(c.m.overall_position_delta)))} {p.plural("place",abs_int_overall_pos)} to {overall_pos} overall'
         else:
             lead_typ=''
         
