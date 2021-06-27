@@ -46,6 +46,39 @@ if (use_group_rank) {
 }
 ```
 
+
+```{r top10-stage-times-table-{{result_group}}-{{stage_code}}, cache=TRUE}
+stage_cols = c('stageId', 'number', 'name', 'distance', 'code')
+
+stage_info = stages %>%
+                select(all_of(stage_cols)) %>%
+                # Tidy up the stage name
+                mutate(name = str_replace(name, ' \\(Live TV\\)', ''))
+
+#large_diff = 2
+
+caption = paste0('Top 10, ', stage_info_$code,
+                 ', ', stage_info_$name, ' (',
+                 stage_info_$distance, 'km)')
+
+top10_stage_times_out = top10_stage_times %>%
+                      # TO DO  - arrange using na.last=TRUE ?
+                      # Improve column names by renaming them
+                      rename(Pos=position,
+                             Car = identifier,
+                             Code = code,
+                             `Time (s)` = TimeInS,
+                             Gap = gap, Diff = diff)
+
+top10_stage_times_out %>% 
+  filter(!is.na(Gap)) %>%
+  select(-overall_stage_pos) %>%
+  formattable(list(Gap = color_bar2("#FA614B66"),
+                   Diff = color_tile("#DeF7E9","#71CA97"),
+                   entryId=FALSE), caption=caption)
+```
+
+
 ```{r}
 #py$pd_df
 ```
@@ -93,37 +126,6 @@ if (!(stage_code %in% c()) && stage_splits_exist){ #omit_stage_splits)) {
                  quiet=TRUE))
 }
 
-```
-
-```{r top10-stage-times-table-{{result_group}}-{{stage_code}}, cache=TRUE}
-stage_cols = c('stageId', 'number', 'name', 'distance', 'code')
-
-stage_info = stages %>%
-                select(all_of(stage_cols)) %>%
-                # Tidy up the stage name
-                mutate(name = str_replace(name, ' \\(Live TV\\)', ''))
-
-#large_diff = 2
-
-caption = paste0('Top 10, ', stage_info_$code,
-                 ', ', stage_info_$name, ' (',
-                 stage_info_$distance, 'km)')
-
-top10_stage_times_out = top10_stage_times %>%
-                      # TO DO  - arrange using na.last=TRUE ?
-                      # Improve column names by renaming them
-                      rename(Pos=position,
-                             Car = identifier,
-                             Code = code,
-                             `Time (s)` = TimeInS,
-                             Gap = gap, Diff = diff)
-
-top10_stage_times_out %>% 
-  filter(!is.na(Gap)) %>%
-  select(-overall_stage_pos) %>%
-  formattable(list(Gap = color_bar2("#FA614B66"),
-                   Diff = color_tile("#DeF7E9","#71CA97"),
-                   entryId=FALSE), caption=caption)
 ```
 
 
