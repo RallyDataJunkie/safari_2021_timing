@@ -142,9 +142,11 @@ multi_stage_long_pos = multi_stage_wide_pos %>%
 
 
 ```{r message=FALSE}
-# For some reason, the overall gap sparkline is relative to ogier
-# Should be relatve to current overall leader
 overall_long_gap_top10 <- multi_overall_wide_gap_top10 %>%
+                            # Make relatve to current overall leader
+                            # at end of each stage
+                            mutate_at(2:ncol(multi_overall_wide_gap_top10),
+                                      list(~ . + abs(min(., na.rm=TRUE)))) %>% 
                             gather(key ="Stage",
                             value ="Gap", stage_codes) %>%
                                 group_by(code) %>%
