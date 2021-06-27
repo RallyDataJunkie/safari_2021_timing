@@ -54,7 +54,7 @@ with ruleset('rule_multi_overall'):
         #Use various probabalistic text generators to make a comment for each other result
         first_opts = [c.s.first_code, 'the overall leader']
 
-        
+        abs_int_overall_pos = abs(int(c.m.overall_position_delta))
                 
         stage_pos = p.number_to_words(p.ordinal(int(c.m.stage_position)))
         stage_win = ', with the stage win,' if c.m.stage_win else f' {sometimes("finishing in ")}{stage_pos} on stage,'
@@ -63,7 +63,7 @@ with ruleset('rule_multi_overall'):
 
         if not isnull(c.m.overall_position_delta) and c.m.overall_position_delta:
             overall_pos = p.number_to_words(p.ordinal(int(c.m.overall_pos)))
-            pos_change = pos_change+f' gaining {p.number_to_words(int(c.m.overall_position_delta))} place(s) to move up to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' losing {p.number_to_words(-int(c.m.overall_position_delta))} place(s) to drop down to {overall_pos} overall'
+            pos_change = pos_change+f' gaining {p.number_to_words(int(c.m.overall_position_delta))} {p.plural("place",abs_int_overall_pos)} to move up to {overall_pos} overall' if c.m.overall_position_delta > 0 else f' losing {p.number_to_words(abs_int_overall_pos)} {p.plural("place",abs_int_overall_pos)} to drop down to {overall_pos} overall'
         else:
             pos_change=f'{nth}{sometimes(" position")} overall,'
             
