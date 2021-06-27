@@ -143,7 +143,7 @@ multi_stage_long_pos = multi_stage_wide_pos %>%
 
 ```{r message=FALSE}
 overall_long_gap_top10 <- multi_overall_wide_gap_top10 %>%
-                            # Make relatve to current overall leader
+                            # Make relative to current overall leader
                             # at end of each stage
                             mutate_at(2:ncol(multi_overall_wide_gap_top10),
                                       list(~ . + abs(min(., na.rm=TRUE)))) %>% 
